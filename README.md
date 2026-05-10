@@ -1,1 +1,1 @@
-# lazysql-rs
+# lazyrsql

@@ -1,2 +1,2 @@
 [tools]
-"cargo:typos-cli" = "latest"
+"cargo:typos-cli" = "1.46.2"

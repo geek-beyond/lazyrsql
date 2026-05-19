@@ -1,12 +1,12 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use ratatui::{DefaultTerminal, Frame};
 
-fn main() {
-    color_eyre::install().unwrap();
-    ratatui::run(app).unwrap();
+fn main() -> color_eyre::Result<()> {
+    color_eyre::install()?;
+    ratatui::run(app)
 }
 
-fn app(terminal: &mut DefaultTerminal) -> std::io::Result<()> {
+fn app(terminal: &mut DefaultTerminal) -> color_eyre::Result<()> {
     let key_event_q = KeyEvent::new(KeyCode::Char('q'), KeyModifiers::NONE);
     loop {
         terminal.draw(render)?;

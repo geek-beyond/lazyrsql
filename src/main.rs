@@ -1,10 +1,9 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use ratatui::{DefaultTerminal, Frame};
 
-fn main() -> color_eyre::Result<()> {
-    color_eyre::install()?;
-    ratatui::run(app)?;
-    Ok(())
+fn main() {
+    let _ = color_eyre::install();
+    let _ = ratatui::run(app);
 }
 
 fn app(terminal: &mut DefaultTerminal) -> std::io::Result<()> {

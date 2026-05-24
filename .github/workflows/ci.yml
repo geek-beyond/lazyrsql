@@ -1,0 +1,46 @@
+# 基本的なCIについて実装
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  # スペルチェック
+  typos:
+    name: Check typos
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: crate-ci/typos@v1.46.3
+  # 静的解析
+  lint:
+    name: Run Lint
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: -D warnings
+  # フォーマット確認
+  format:
+    name: Check Format
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --check
+  # ビルド確認
+  build:
+    name: Run build
+    needs: [typos, lint, format]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+

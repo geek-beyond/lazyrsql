@@ -12,7 +12,7 @@ fn app(terminal: &mut DefaultTerminal) -> std::io::Result<()> {
         if crossterm::event::read()?.as_key_press_event() == Some(key_event_q) {
             break Ok(());
         }
-        }
+    }
 }
 
 fn render(frame: &mut Frame) {

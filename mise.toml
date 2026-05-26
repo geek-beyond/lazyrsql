@@ -1,2 +1,3 @@
 [tools]
 "cargo:typos-cli" = "1.46.2"
+"cargo:cargo-llvm-cov" = "0.8.7"

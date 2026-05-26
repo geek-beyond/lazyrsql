@@ -1,0 +1,49 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test.yml'
+      - 'src/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/test.yml'
+      - 'src/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+
+# カバレッジの可視化で、コメントを残すための権限
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  cargo:
+    runs-on: ubuntu-latest
+    env:
+      COV_PATH: ./cobertura.xml
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 #v4
+        with:
+          version: 2026.5.15
+          cache: true
+
+      - name: run llvm-cov
+        run: |
+          cargo llvm-cov run --cobertura --output-path ${{ env.COV_PATH }}
+
+      - name: post coverage to comment
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/upload-code-coverage@b51da2c3c1b23e04d2d6477cfc34350b1f5cd3e9 #v1.2
+        with:
+          file: ${{ env.COV_PATH }}
+          language: Rust
+          label: rust/llvm-cov

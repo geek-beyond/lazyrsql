@@ -21,13 +21,13 @@ on:
 # カバレッジの可視化で、コメントを残すための権限
 permissions:
   contents: read
-  code-quality: write
+  pull-requests: write
 
 jobs:
   cargo:
     runs-on: ubuntu-latest
     env:
-      COV_PATH: ./cobertura.xml
+      COV_PATH: ./coverage.xml
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
@@ -42,8 +42,6 @@ jobs:
 
       - name: post coverage to comment
         if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/upload-code-coverage@b51da2c3c1b23e04d2d6477cfc34350b1f5cd3e9 #v1.2
+        uses: 5monkeys/cobertura-action@ee5787cc56634acddedc51f21c7947985531e6eb
         with:
-          file: ${{ env.COV_PATH }}
-          language: Rust
-          label: rust/llvm-cov
+          minimum_coverage: 75 # カバレッジが75%未満の場合、コメントに警告を残す

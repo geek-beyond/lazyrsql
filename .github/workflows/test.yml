@@ -38,7 +38,7 @@ jobs:
 
       - name: run llvm-cov
         run: |
-          cargo llvm-cov run --cobertura --output-path ${{ env.COV_PATH }}
+          cargo llvm-cov test --cobertura --output-path ${{ env.COV_PATH }}
 
       - name: post coverage to comment
         if: ${{ github.event_name == 'pull_request' }}

@@ -20,7 +20,7 @@ on:
 
 # カバレッジの可視化で、コメントを残すための権限
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 
 jobs:

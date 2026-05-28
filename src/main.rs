@@ -1,9 +1,7 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use ratatui::{DefaultTerminal, Frame};
 
-const QUIT_SESSION_KEYS: [KeyEvent; 1] = [
-    KeyEvent::new(KeyCode::Char('q'), KeyModifiers::NONE),
-];
+const QUIT_SESSION_KEYS: [KeyEvent; 1] = [KeyEvent::new(KeyCode::Char('q'), KeyModifiers::NONE)];
 
 fn main() -> std::io::Result<()> {
     ratatui::run(app)
@@ -12,10 +10,12 @@ fn main() -> std::io::Result<()> {
 fn app(terminal: &mut DefaultTerminal) -> std::io::Result<()> {
     loop {
         terminal.draw(render)?;
-        if should_quit(crossterm::event::read()?.as_key_press_event().unwrap()) {
-            break Ok(());
+        if let Some(key) = crossterm::event::read()?.as_key_press_event() {
+            if should_quit(key) {
+                break Ok(());
+            }
         }
-        }
+    }
 }
 
 fn should_quit(key: KeyEvent) -> bool {

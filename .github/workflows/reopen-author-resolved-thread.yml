@@ -16,7 +16,7 @@ jobs:
           script: |
             const { thread, pull_request, sender } = context.payload;
 
-            // resolve したのが PR author 以外（= reviewer）なら何もしない
+            // resolve したのが PR author 以外なら何もしない
             if (sender.login !== pull_request.user.login) {
               core.info(`Resolved by ${sender.login} (not the author). Skip.`);
               return;

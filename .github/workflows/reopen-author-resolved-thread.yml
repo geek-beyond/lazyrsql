@@ -1,0 +1,35 @@
+name: Reopen author-resolved review thread
+
+on:
+  pull_request_review_thread:
+    types: [resolved]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  reopen:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const { thread, pull_request, sender } = context.payload;
+
+            // resolve したのが PR author 以外（= reviewer）なら何もしない
+            if (sender.login !== pull_request.user.login) {
+              core.info(`Resolved by ${sender.login} (not the author). Skip.`);
+              return;
+            }
+
+            // author が resolve した thread は、内容確認を reviewer に委ねるため開き直す
+            await github.graphql(`
+              mutation($threadId: ID!) {
+                unresolveReviewThread(input: { threadId: $threadId }) {
+                  thread { id }
+                }
+              }
+            `, {
+              threadId: thread.node_id,
+            });
+            core.info(`Reopened thread resolved by author ${sender.login}.`);

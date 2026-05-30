@@ -33,12 +33,12 @@ mod test {
     #[test]
     fn should_quit_on_key_event_eq_quit_session_keys() {
         let key_event = KeyEvent::new(KeyCode::Char('q'), KeyModifiers::NONE);
-        assert_eq!(should_quit(key_event), true)
+        assert!(should_quit(key_event))
     }
 
     #[test]
     fn should_not_quit_on_key_event_not_eq_quit_session_keys() {
         let key_event = KeyEvent::new(KeyCode::Char('a'), KeyModifiers::NONE);
-        assert_eq!(should_quit(key_event), false)
+        assert!(!should_quit(key_event))
     }
 }

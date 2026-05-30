@@ -31,13 +31,13 @@ mod test {
     use super::*;
 
     #[test]
-    fn should_quit_on_key_event_eq_quit_session_keys() {
+    fn should_quit_returns_true_on_q_key() {
         let key_event = KeyEvent::new(KeyCode::Char('q'), KeyModifiers::NONE);
         assert!(should_quit(key_event))
     }
 
     #[test]
-    fn should_not_quit_on_key_event_not_eq_quit_session_keys() {
+    fn should_quit_returns_false_on_non_q_key() {
         let key_event = KeyEvent::new(KeyCode::Char('a'), KeyModifiers::NONE);
         assert!(!should_quit(key_event))
     }

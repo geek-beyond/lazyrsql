@@ -1,0 +1,45 @@
+warning: test function name should not start with the `test_` prefix
+  --> $DIR/main.rs:10:4
+   |
+LL | fn test_quit() {}
+   |    ^^^^^^^^^
+   |
+   = help: consider renaming to `quit`
+   = note: `#[warn(no_test_prefix)]` on by default
+
+warning: test function name has 2 word(s); at least 3 are required
+  --> $DIR/main.rs:10:4
+   |
+LL | fn test_quit() {}
+   |    ^^^^^^^^^
+   |
+   = help: use underscore-separated words like `should_<subject>_<behavior>`
+   = note: `#[warn(test_name_min_words)]` on by default
+
+warning: test function name should contain a behavior keyword
+  --> $DIR/main.rs:10:4
+   |
+LL | fn test_quit() {}
+   |    ^^^^^^^^^
+   |
+   = help: add one of: should, when, returns, return, given, is, has, have, if, with, without, on, fails, fail, succeeds, succeed, handles, handle, does, not
+   = note: `#[warn(require_behavior_keyword)]` on by default
+
+warning: test function name has 2 word(s); at least 3 are required
+  --> $DIR/main.rs:14:4
+   |
+LL | fn quit_app() {}
+   |    ^^^^^^^^
+   |
+   = help: use underscore-separated words like `should_<subject>_<behavior>`
+
+warning: test function name should contain a behavior keyword
+  --> $DIR/main.rs:14:4
+   |
+LL | fn quit_app() {}
+   |    ^^^^^^^^
+   |
+   = help: add one of: should, when, returns, return, given, is, has, have, if, with, without, on, fails, fail, succeeds, succeed, handles, handle, does, not
+
+warning: 5 warnings emitted
+

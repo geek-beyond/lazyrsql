@@ -1,0 +1,5 @@
+/target
+
+# rustc/cargo の探索や手動実行で lint/ 直下に生成され得る一時 rlib
+# (例: librust_out.rlib, libnull.rlib)の混入を防ぐ。
+*.rlib

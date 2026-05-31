@@ -1,0 +1,76 @@
+# 基本的なCIについて実装
+
+on:
+  push:
+
+  pull_request:
+    branches: [main]
+    types: [opened]
+
+jobs:
+  spellcheck:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false # GitHubトークンが抜き取られるの防ぐための設定
+      - uses: crate-ci/typos@7b04f660f4ee4f048d18fd341887cf28dfbedfe2 # v1.46.3
+  # 静的解析
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+      - uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505 # v1
+        with:
+          command: clippy
+          args: -- -D warnings
+  # フォーマット確認
+  format:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+      - uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505 # v1
+        with:
+          command: fmt
+          args: --all -- --check
+  # ビルド確認
+  build:
+    needs: [spellcheck, lint, format]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #4
+        with:
+          persist-credentials: false
+      - uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505 #v1
+        with:
+          command: build
+          args: --release
+  # 本体の #[test] 関数名にテスト命名 lint(lint/ の testname_lints)を適用する。
+  # 違反を CI で落とすため、3 つの lint を deny に引き上げて実行する。
+  testname-lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+      # cargo-dylint(lint 実行)と dylint-link(lint ライブラリのリンク)を導入する。
+      # cargo-dylint は openssl をビルドに要し lint/mise.toml に同梱できないため CI でのみ入れる。
+      - name: install dylint tooling
+        run: |
+          cargo install cargo-dylint --version 6.0.1 --locked
+          cargo install dylint-link --version 6.0.1 --locked
+      # lint ライブラリ(cdylib)をビルドする。lint/rust-toolchain.toml の nightly が自動導入される。
+      - name: build lint library
+        working-directory: lint
+        run: cargo build --release
+      # 本体の test ターゲットに lint を適用する。--tests で #[test] をコンパイルし、
+      # 後段の `-- -D ...` で 3 つの lint を deny に引き上げ、違反を CI エラーにする。
+      - name: lint test names
+        run: >
+          cargo dylint --lib-path lint/target/release --all --
+          --tests --
+          -D no_test_prefix -D test_name_min_words -D require_behavior_keyword

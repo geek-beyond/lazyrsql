@@ -1,0 +1,18 @@
+# lint/ 配下に閉じた mise 設定。lint ライブラリのビルドとテストを本体から分離する。
+#
+# dylint-link のみを導入する。これは dylint ライブラリ(cdylib)のリンク時に
+# `lib<name>@<toolchain>.dylib` を生成するために必須で、ビルド/テスト双方で使われる。
+# (cargo-dylint CLI は別途必要だが、この環境では x86_64 エミュレーション下で
+#  openssl をビルドできずインストール不可。検知検証は下記 test タスクで完結する。)
+[tools]
+"cargo:dylint-link" = "6.0.1"
+
+[tasks.build]
+description = "lint ライブラリ(cdylib)をビルド"
+run = "cargo build --release"
+
+[tasks.test]
+description = "UI テストで lint が実際に検知するかを検証"
+# dylint-link は [tools] で導入済みのため実行時に自動で PATH に通る。
+# openssl は Cargo.toml の vendored 指定によりソースからビルドされ、システム依存なしで完結する。
+run = "cargo test"

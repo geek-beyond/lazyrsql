@@ -1,0 +1,24 @@
+[package]
+name = "testname_lints"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+# 親リポジトリの workspace に吸収されないよう、独立 workspace を明示する。
+[workspace]
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+clippy_utils = { git = "https://github.com/rust-lang/rust-clippy", rev = "f6d310692116e9a527ce6d0b3526c965d9c5d7b9" }
+dylint_linting = "6.0.1"
+
+[dev-dependencies]
+dylint_testing = "6.0.1"
+# dylint_testing は内部で openssl-sys を間接依存する。システムの openssl / pkg-config に
+# 依存せず lint/ 内で完結してテストをビルドできるよう、vendored(ソースからビルド)を強制する。
+openssl-sys = { version = "0.9.116", features = ["vendored"] }
+
+[package.metadata.rust-analyzer]
+rustc_private = true

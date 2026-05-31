@@ -1,0 +1,7 @@
+# dylint ライブラリのビルド時に dylint-link をリンカとして使う。
+# dylint-link は実リンカ(cc)に委譲したあと、成果物を dylint-driver が探索する
+# `lib<name>@<toolchain>.dylib` という名前にコピーする。
+# librustc_driver を解決するための rpath 付与は build.rs が担当する。
+# dylint-link は mise(lint/mise.toml)で導入し PATH に通す。
+[target.'cfg(all())']
+linker = "dylint-link"

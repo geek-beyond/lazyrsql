@@ -68,11 +68,22 @@ jobs:
         with:
           path: ~/.dylint_drivers
           key: dylint-drivers-6.0.1-${{ hashFiles('lint/rust-toolchain.toml') }}
-      # cargo-dylint(lint 実行)と dylint-link(lint ライブラリのリンク)を導入する。
-      # ソースビルド(数分)を避け、dylint 配布のプリビルドバイナリを取得する。
-      - uses: cargo-bins/cargo-binstall@aaa84a43aec4955a42c5ffc65d258961e39f276e # v1.19.1
+      # cargo-dylint / dylint-link 本体をキャッシュ(初回のみソースビルド)。
+      # プリビルド配布版はドライバソースのパスがビルド時に焼き込まれ他環境で使えないため
+      # cargo install を使い、その成果物バイナリをキャッシュして 2 回目以降を高速化する。
+      - name: cache dylint tooling
+        id: dylint-bins
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: |
+            ~/.cargo/bin/cargo-dylint
+            ~/.cargo/bin/dylint-link
+          key: dylint-bins-${{ runner.os }}-6.0.1
       - name: install dylint tooling
-        run: cargo binstall --no-confirm cargo-dylint@6.0.1 dylint-link@6.0.1
+        if: steps.dylint-bins.outputs.cache-hit != 'true'
+        run: |
+          cargo install cargo-dylint --version 6.0.1 --locked
+          cargo install dylint-link --version 6.0.1 --locked
       # lint ライブラリ(cdylib)をビルドする。lint/rust-toolchain.toml の nightly が自動導入される。
       - name: build lint library
         working-directory: lint

@@ -66,7 +66,11 @@ jobs:
       # lint ライブラリ(cdylib)をビルドする。lint/rust-toolchain.toml の nightly が自動導入される。
       - name: build lint library
         working-directory: lint
-        run: cargo build --release
+        run: |
+          cargo build --release
+          echo "--- target/release (testname_lints) ---"
+          ls -la target/release/*testname_lints* || true
+          which dylint-link || true
       # 本体の test ターゲットに lint を適用する。--tests で #[test] をコンパイルし、
       # 後段の `-- -D ...` で 3 つの lint を deny に引き上げ、違反を CI エラーにする。
       - name: lint test names

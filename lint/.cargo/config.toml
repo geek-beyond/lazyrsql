@@ -1,7 +1,16 @@
 # dylint ライブラリのビルド時に dylint-link をリンカとして使う。
 # dylint-link は実リンカ(cc)に委譲したあと、成果物を dylint-driver が探索する
-# `lib<name>@<toolchain>.dylib` という名前にコピーする。
+# `lib<name>@<toolchain>.(dylib|so)` という名前にコピーする。
 # librustc_driver を解決するための rpath 付与は build.rs が担当する。
-# dylint-link は mise(lint/mise.toml)で導入し PATH に通す。
-[target.'cfg(all())']
+#
+# 注意: cargo は `linker` を cfg() ベースの target テーブルから読まない場合がある
+# (CI の linux では適用されず @toolchain 付き成果物が生成されなかった)。
+# dylint-link 公式どおり、明示的な target triple ごとに指定する。
+[target.x86_64-unknown-linux-gnu]
+linker = "dylint-link"
+
+[target.x86_64-apple-darwin]
+linker = "dylint-link"
+
+[target.aarch64-apple-darwin]
 linker = "dylint-link"

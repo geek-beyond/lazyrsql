@@ -71,14 +71,13 @@ jobs:
           echo "--- target/release (testname_lints) ---"
           ls -la target/release/*testname_lints* || true
           which dylint-link || true
-      # 本体の test ターゲットに lint を適用する。--tests で #[test] をコンパイルし、
-      # 後段の `-- -D ...` で 3 つの lint を deny に引き上げ、違反を CI エラーにする。
+      # 本体の test ターゲットに lint を適用する。--tests で #[test] をコンパイルする。
       # DYLINT_LIBRARY_PATH はディレクトリ(絶対パス必須)を走査し @toolchain 付き
       # 成果物のみを拾う(素の .so はスキップ)。--lib-path はファイル指定用なので使わない。
+      # lint は warn 既定。CI では DYLINT_RUSTFLAGS で deny に引き上げて違反を失敗させる
+      # (このフラグはドライバが workspace クレートにのみ適用し、依存クレートには波及しない)。
       - name: lint test names
         env:
           DYLINT_LIBRARY_PATH: ${{ github.workspace }}/lint/target/release
-        run: >
-          cargo dylint --all --
-          --tests --
-          -D no_test_prefix -D test_name_min_words -D require_behavior_keyword
+          DYLINT_RUSTFLAGS: -D no_test_prefix -D test_name_min_words -D require_behavior_keyword
+        run: cargo dylint --all -- --tests

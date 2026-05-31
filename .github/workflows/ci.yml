@@ -54,23 +54,29 @@ jobs:
   testname-lint:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
+      # ビルド成果物・レジストリをキャッシュ(lint ライブラリと dylint チェックの再ビルドを短縮)。
+      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
+        with:
+          workspaces: |
+            .
+            lint
+      # dylint ドライバ(nightly ごとにビルドされる)をキャッシュして再ビルドを省く。
+      - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.dylint_drivers
+          key: dylint-drivers-6.0.1-${{ hashFiles('lint/rust-toolchain.toml') }}
       # cargo-dylint(lint 実行)と dylint-link(lint ライブラリのリンク)を導入する。
-      # cargo-dylint は openssl をビルドに要し lint/mise.toml に同梱できないため CI でのみ入れる。
+      # ソースビルド(数分)を避け、dylint 配布のプリビルドバイナリを取得する。
+      - uses: cargo-bins/cargo-binstall@aaa84a43aec4955a42c5ffc65d258961e39f276e # v1.19.1
       - name: install dylint tooling
-        run: |
-          cargo install cargo-dylint --version 6.0.1 --locked
-          cargo install dylint-link --version 6.0.1 --locked
+        run: cargo binstall --no-confirm cargo-dylint@6.0.1 dylint-link@6.0.1
       # lint ライブラリ(cdylib)をビルドする。lint/rust-toolchain.toml の nightly が自動導入される。
       - name: build lint library
         working-directory: lint
-        run: |
-          cargo build --release
-          echo "--- target/release (testname_lints) ---"
-          ls -la target/release/*testname_lints* || true
-          which dylint-link || true
+        run: cargo build --release
       # 本体の test ターゲットに lint を適用する。--tests で #[test] をコンパイルする。
       # DYLINT_LIBRARY_PATH はディレクトリ(絶対パス必須)を走査し @toolchain 付き
       # 成果物のみを拾う(素の .so はスキップ)。--lib-path はファイル指定用なので使わない。

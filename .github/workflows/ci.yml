@@ -1,45 +1,51 @@
 # 基本的なCIについて実装
 
 on:
+  push:
+
   pull_request:
-    types: [opened, synchronize, reopened]
+    branches: [main]
+    types: [opened]
 
 jobs:
-  # スペルチェック
-  typos:
-    name: Check typos
+  spellcheck:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: crate-ci/typos@v1.46.3
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false # GitHubトークンが抜き取られるの防ぐための設定
+      - uses: crate-ci/typos@7b04f660f4ee4f048d18fd341887cf28dfbedfe2 # v1.46.3
   # 静的解析
   lint:
-    name: Run Lint
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions-rs/cargo@v1
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+      - uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505 # v1
         with:
           command: clippy
           args: -- -D warnings
   # フォーマット確認
   format:
-    name: Check Format
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions-rs/cargo@v1
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+      - uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505 # v1
         with:
           command: fmt
           args: --all -- --check
   # ビルド確認
   build:
-    name: Run build
-    needs: [typos, lint, format]
+    needs: [spellcheck, lint, format]
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions-rs/cargo@v1
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #4
+        with:
+          persist-credentials: false
+      - uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505 #v1
         with:
           command: build
           args: --release

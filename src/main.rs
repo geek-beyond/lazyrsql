@@ -10,8 +10,8 @@ fn main() -> std::io::Result<()> {
 fn app(terminal: &mut DefaultTerminal) -> std::io::Result<()> {
     loop {
         terminal.draw(render)?;
-        if let Some(key) = crossterm::event::read()?.as_key_press_event() 
-            && should_quit(key) 
+        if let Some(key) = crossterm::event::read()?.as_key_press_event()
+            && should_quit(key)
         {
             break Ok(());
         }

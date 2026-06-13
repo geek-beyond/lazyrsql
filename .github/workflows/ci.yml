@@ -1,5 +1,3 @@
-# 基本的なCIについて実装
-
 on:
   push:
 
@@ -11,7 +9,6 @@ jobs:
         with:
           persist-credentials: false # GitHubトークンが抜き取られるの防ぐための設定
       - uses: crate-ci/typos@7b04f660f4ee4f048d18fd341887cf28dfbedfe2 # v1.46.3
-  # 静的解析
   lint:
     runs-on: ubuntu-24.04
     steps:
@@ -22,7 +19,6 @@ jobs:
         with:
           components: clippy
       - run: cargo clippy -- -D warnings
-  # フォーマット確認
   format:
     runs-on: ubuntu-24.04
     steps:
@@ -33,7 +29,6 @@ jobs:
         with:
           components: rustfmt
       - run: cargo fmt --all --check
-  # ビルド確認
   build:
     needs: [spellcheck, lint, format]
     runs-on: ubuntu-24.04

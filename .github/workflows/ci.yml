@@ -7,14 +7,6 @@ on:
       - 'Cargo.lock'
 
 jobs:
-  # メンテナンスをしやすくするためにマトリックス戦略はここで定義
-  setup:
-      runs-on: ubuntu-24.04
-      outputs:
-        os: ${{ steps.def.outputs.os }}
-      steps:
-        - id: def
-          run: echo 'os=["ubuntu-24.04","macos-26"]' >> "$GITHUB_OUTPUT"
   spellcheck:
     runs-on: ubuntu-24.04
     steps:
@@ -22,6 +14,7 @@ jobs:
         with:
           persist-credentials: false # GitHubトークンが抜き取られるの防ぐための設定
       - uses: crate-ci/typos@7b04f660f4ee4f048d18fd341887cf28dfbedfe2 # v1.46.3
+
   lint:
     runs-on: ubuntu-24.04
     steps:
@@ -32,6 +25,7 @@ jobs:
         with:
           components: clippy
       - run: cargo clippy -- -D warnings
+
   format:
     runs-on: ubuntu-24.04
     steps:
@@ -42,12 +36,13 @@ jobs:
         with:
           components: rustfmt
       - run: cargo fmt --all --check
+
   build:
-    needs: [setup, spellcheck, lint, format]
+    needs: [spellcheck, lint, format]
     strategy:
       fail-fast: false # どのOSで失敗したか確認するために設定
       matrix:
-        os: ${{ fromJSON(needs.setup.outputs.os) }}
+        os: [ubuntu-24.04, macos-26]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -55,12 +50,13 @@ jobs:
           persist-credentials: false
       - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
       - run: cargo build --release
+
   test:
-    needs: [setup, build]
+    needs: [build]
     strategy:
       fail-fast: false # どのOSで失敗したか確認するために設定
       matrix:
-        os: ${{ fromJSON(needs.setup.outputs.os) }}
+        os: [ubuntu-24.04, macos-26]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3

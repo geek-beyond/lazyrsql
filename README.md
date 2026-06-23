@@ -9,5 +9,5 @@
 
 ## ADRの追加方法
 ```sh
-adr new ${title}
+adr new "タイトル"
 ```

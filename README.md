@@ -6,3 +6,8 @@
 - Backend: [crossterm](https://github.com/crossterm-rs/crossterm)
 - Async Runtime: [Tokio](https://tokio.rs/)
 - SQL Client: [sqlx](https://github.com/launchbadge/sqlx) (Target: [Database Name])
+
+## ADRの追加方法
+```sh
+adr new "タイトル"
+```

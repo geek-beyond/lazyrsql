@@ -14,9 +14,8 @@ CIのビルドを実装しているときに、ビルド対象に`Ubuntu(Linux)`
 
 ## Decision
 
-`Ubuntu(Linux)`のビルドは対応しない
+対応するOSは`Ubuntu(Linux)`を除く、`Windows`、`MacOS`のみとする
 
 ## Consequences
 
 現状開発メンバーには`Windows`と`MacOS`のユーザーしかいないので、`Ubuntu(Linux)`の対応は見送る
-

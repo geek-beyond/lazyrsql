@@ -8,7 +8,7 @@ Accepted
 
 ## Context
 
-CIのビルドの実装をしているときに、ビルド対象に`Ubuntu(Linux)`が含むべきかが議論になった。
+CIのビルドの実装をしているときに、ビルド対象にUbuntu(Linux)を含めるべきかが議論になった。
 
 結果的に、`Linux`を除く、`Windows`、`MacOS`のみの対応とすることになったが、
 

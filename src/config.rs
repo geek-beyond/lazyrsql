@@ -3,7 +3,7 @@ use std::io::{self, Write, stdin, stdout};
 pub struct Config {
     pub db_url: String,
     pub user: String,
-    pub password: String
+    pub password: String,
 }
 
 fn ask(question: &str) -> io::Result<String> {
@@ -17,11 +17,9 @@ fn ask(question: &str) -> io::Result<String> {
 }
 
 pub fn ask_config() -> io::Result<Config> {
-    Ok(
-        Config {
-            db_url: ask("Database URL: ")?,
-            user: ask("User: ")?,
-            password: ask("Password: ")?,
-        }
-    )
+    Ok(Config {
+        db_url: ask("Database URL: ")?,
+        user: ask("User: ")?,
+        password: ask("Password: ")?,
+    })
 }

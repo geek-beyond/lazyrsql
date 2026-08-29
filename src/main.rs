@@ -6,7 +6,10 @@ const QUIT_SESSION_KEYS: [KeyEvent; 1] = [KeyEvent::new(KeyCode::Char('q'), KeyM
 
 fn main() -> std::io::Result<()> {
     let config = config::ask_config()?;
-    println!("db_url: {}, user: {}, password: {}", config.db_url, config.user, config.password);
+    println!(
+        "db_url: {}, user: {}, password: {}",
+        config.db_url, config.user, config.password
+    );
     ratatui::run(app)
 }
 

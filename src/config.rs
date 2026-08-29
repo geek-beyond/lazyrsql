@@ -1,9 +1,9 @@
 use std::io::{self, Write, stdin, stdout};
 
 pub struct Config {
-    db_url: String,
-    user: String,
-    password: String
+    pub db_url: String,
+    pub user: String,
+    pub password: String
 }
 
 fn ask(question: &str) -> io::Result<String> {

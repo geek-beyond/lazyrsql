@@ -2,16 +2,15 @@ use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use ratatui::{DefaultTerminal, Frame};
 mod config;
 
-use config::{Config};
-
 const QUIT_SESSION_KEYS: [KeyEvent; 1] = [KeyEvent::new(KeyCode::Char('q'), KeyModifiers::NONE)];
 
 fn main() -> std::io::Result<()> {
     let config = config::ask_config()?;
-    ratatui::run(|terminal| app(terminal, &config))
+    println!("db_url: {}, user: {}, password: {}", config.db_url, config.user, config.password);
+    ratatui::run(app)
 }
 
-fn app(terminal: &mut DefaultTerminal, config: &Config) -> std::io::Result<()> {
+fn app(terminal: &mut DefaultTerminal) -> std::io::Result<()> {
     loop {
         terminal.draw(render)?;
         if let Some(key) = crossterm::event::read()?.as_key_press_event()

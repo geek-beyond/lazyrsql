@@ -16,7 +16,17 @@ SQLクライアントを起動するにあたり、DBのURL、 ユーザー、 �
 
 CLIで起動時に対話形式で入力するようにした。
 
+```mermaid
+graph
 
+CLI[CLIで起動] --> Config;
+Config --> TUI[TUIの起動];
+
+subgraph Config[接続情報を入力]
+  DB_URL[DBのURLの入力] --> User[ユーザー]
+  User --> Password[パスワード]
+end
+```
 
 ### 他にあった選択肢
 

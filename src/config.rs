@@ -87,4 +87,37 @@ mod tests {
         let validate_result = validate_db_url(db_url);
         assert_eq!(validate_result, expect)
     }
+
+    #[test]
+    fn test_new_stores_each_field() {
+        let config = Config::new(
+            "mysql://localhost:3306".to_string(),
+            "user_name".to_string(),
+            "password".to_string(),
+        )
+        .expect("valid config");
+
+        assert_eq!(config.db_url, "mysql://localhost:3306");
+        assert_eq!(config.user, "user_name");
+        assert_eq!(config.password, "password");
+    }
+
+    #[rstest]
+    #[case::empty_db_url("", "user_name", ConfigError::EmptyDbUrl)]
+    #[case::invalid_db_url_scheme(
+        "http://localhost:8080",
+        "user_name",
+        ConfigError::InvalidDbUrlScheme("http://localhost:8080".to_string())
+    )]
+    #[case::empty_user("mysql://localhost:3306", "", ConfigError::EmptyUser)]
+    #[case::db_url_checked_before_user("", "", ConfigError::EmptyDbUrl)]
+    fn test_new_returns_error(
+        #[case] db_url: &str,
+        #[case] user: &str,
+        #[case] expect: ConfigError,
+    ) {
+        let result = Config::new(db_url.to_string(), user.to_string(), "password".to_string());
+
+        assert_eq!(result.err(), Some(expect));
+    }
 }

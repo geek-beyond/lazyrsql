@@ -54,3 +54,37 @@ fn validate_user(user: &str) -> Result<(), ConfigError> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rstest::rstest;
+
+    #[rstest]
+    #[case::simple("user_name", Ok(()))]
+    #[case::empty("", Err(ConfigError::EmptyUser))]
+    fn test_user_validate(#[case] user: &str, #[case] expect: Result<(), ConfigError>) {
+        let validate_result = validate_user(user);
+        assert_eq!(validate_result, expect)
+    }
+
+    #[rstest]
+    #[case::simple("mysql://localhost:3306", Ok(()))]
+    #[case::empty("", Err(ConfigError::EmptyDbUrl))]
+    #[case::invalid_protocol_psql(
+        "postgres://localhost:5432",
+        Err(ConfigError::InvalidDbUrlScheme("postgres://localhost:5432".to_string()))
+    )]
+    #[case::invalid_protocol_http(
+        "http://localhost:8080",
+        Err(ConfigError::InvalidDbUrlScheme("http://localhost:8080".to_string()))
+    )]
+    #[case::invalid_protocol_no_protocol(
+        "localhost:3306",
+        Err(ConfigError::InvalidDbUrlScheme("localhost:3306".to_string()))
+    )]
+    fn test_db_url_validate(#[case] db_url: &str, #[case] expect: Result<(), ConfigError>) {
+        let validate_result = validate_db_url(db_url);
+        assert_eq!(validate_result, expect)
+    }
+}

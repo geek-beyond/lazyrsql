@@ -1,10 +1,24 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use ratatui::{DefaultTerminal, Frame};
+mod db;
+mod error;
+mod prompt;
+
+use error::AppError;
 
 const QUIT_SESSION_KEYS: [KeyEvent; 1] = [KeyEvent::new(KeyCode::Char('q'), KeyModifiers::NONE)];
 
-fn main() -> std::io::Result<()> {
-    ratatui::run(app)
+fn main() -> Result<(), AppError> {
+    let db_url = prompt::ask("Database URL: ")?;
+    let user = prompt::ask("User: ")?;
+    let password = prompt::ask("Password: ")?;
+    let db_name = prompt::ask("Database Name: ")?;
+
+    db::connect(&db_url, &user, &password, &db_name)?;
+
+    ratatui::run(app)?;
+
+    Ok(())
 }
 
 fn app(terminal: &mut DefaultTerminal) -> std::io::Result<()> {

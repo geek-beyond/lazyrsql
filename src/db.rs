@@ -1,10 +1,18 @@
+pub const URL_SCHEMES: &[&str] = &[
+    "mysql://"
+    // TODO: psqlを対応するようになったら追加する
+    // "postgres://"
+];
+
 #[derive(Debug, PartialEq, thiserror::Error)]
 pub enum ConnectionConfigError {
     #[error("databaseURL is empty")]
     EmptyDbUrl,
 
-    #[error("databaseURL is invalid (expected `mysql://`): {0}")]
-    InvalidDbUrlScheme(String),
+    #[error(
+        "databaseURL scheme is not supported yet (currently only `mysql://`; other databases are planned): {0}"
+    )]
+    UnsupportedDbUrlScheme(String),
 
     #[error("user is empty")]
     EmptyUser,
@@ -15,8 +23,11 @@ pub fn validate_db_url(db_url: &str) -> Result<(), ConnectionConfigError> {
         return Err(ConnectionConfigError::EmptyDbUrl);
     }
 
-    if !db_url.starts_with("mysql://") {
-        return Err(ConnectionConfigError::InvalidDbUrlScheme(
+    if !URL_SCHEMES
+        .iter()
+        .any(|scheme| db_url.starts_with(scheme))
+    {
+        return Err(ConnectionConfigError::UnsupportedDbUrlScheme(
             db_url.to_string(),
         ));
     }
@@ -55,17 +66,13 @@ mod tests {
     #[rstest]
     #[case::simple("mysql://localhost:3306", Ok(()))]
     #[case::empty("", Err(ConnectionConfigError::EmptyDbUrl))]
-    #[case::invalid_protocol_psql(
-        "postgres://localhost:5432",
-        Err(ConnectionConfigError::InvalidDbUrlScheme("postgres://localhost:5432".to_string()))
-    )]
-    #[case::invalid_protocol_http(
+    #[case::unsupported_protocol_http(
         "http://localhost:8080",
-        Err(ConnectionConfigError::InvalidDbUrlScheme("http://localhost:8080".to_string()))
+        Err(ConnectionConfigError::UnsupportedDbUrlScheme("http://localhost:8080".to_string()))
     )]
-    #[case::invalid_protocol_no_protocol(
+    #[case::unsupported_protocol_no_protocol(
         "localhost:3306",
-        Err(ConnectionConfigError::InvalidDbUrlScheme("localhost:3306".to_string()))
+        Err(ConnectionConfigError::UnsupportedDbUrlScheme("localhost:3306".to_string()))
     )]
     fn test_db_url_validate(
         #[case] db_url: &str,
@@ -84,10 +91,10 @@ mod tests {
 
     #[rstest]
     #[case::empty_db_url("", "user_name", ConnectionConfigError::EmptyDbUrl)]
-    #[case::invalid_db_url_scheme(
+    #[case::unsupported_db_url_scheme(
         "http://localhost:8080",
         "user_name",
-        ConnectionConfigError::InvalidDbUrlScheme("http://localhost:8080".to_string())
+        ConnectionConfigError::UnsupportedDbUrlScheme("http://localhost:8080".to_string())
     )]
     #[case::empty_user("mysql://localhost:3306", "", ConnectionConfigError::EmptyUser)]
     #[case::db_url_checked_before_user("", "", ConnectionConfigError::EmptyDbUrl)]

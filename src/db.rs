@@ -51,7 +51,8 @@ pub fn validate_user(user: &str) -> Result<(), ConnectionConfigError> {
     Ok(())
 }
 
-pub fn connect(db_url: &str, user: &str, password: &str) -> Result<(), ConnectionConfigError> {
+// 使用していない変数はClippyのwarningになるため、一時的に`_`をつける
+pub fn connect(db_url: &str, user: &str, _password: &str) -> Result<(), ConnectionConfigError> {
     validate_db_url(db_url)?;
     validate_user(user)?;
 

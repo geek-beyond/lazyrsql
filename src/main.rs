@@ -12,8 +12,9 @@ fn main() -> Result<(), AppError> {
     let db_url = prompt::ask("Database URL: ")?;
     let user = prompt::ask("User: ")?;
     let password = prompt::ask("Password: ")?;
+    let db_name = prompt::ask("Database Name: ")?;
 
-    db::connect(&db_url, &user, &password)?;
+    db::connect(&db_url, &user, &password, &db_name)?;
 
     ratatui::run(app)?;
 

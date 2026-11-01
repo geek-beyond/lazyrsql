@@ -1,18 +1,20 @@
 pub const URL_SCHEMES: &[&str] = &[
-    "mysql://"
-    // TODO: psqlを対応するようになったら追加する
-    // "postgres://"
+    "mysql://",
+    // TODO: psqlやsqliteを対応するようになったら、PLANNED_URL_SCHEMESからここに移す
 ];
+
+pub const PLANNED_URL_SCHEMES: &[&str] = &["postgres://", "sqlite://"];
 
 #[derive(Debug, PartialEq, thiserror::Error)]
 pub enum ConnectionConfigError {
     #[error("databaseURL is empty")]
     EmptyDbUrl,
 
-    #[error(
-        "databaseURL scheme is not supported yet (currently only `mysql://`; other databases are planned): {0}"
-    )]
-    UnsupportedDbUrlScheme(String),
+    #[error("databaseURL is invalid (expected `mysql://`): {0}")]
+    InvalidDbUrlScheme(String),
+
+    #[error("this database is not supported yet (planned for a future release): {0}")]
+    PlannedDbUrlScheme(String),
 
     #[error("user is empty")]
     EmptyUser,
@@ -23,11 +25,17 @@ pub fn validate_db_url(db_url: &str) -> Result<(), ConnectionConfigError> {
         return Err(ConnectionConfigError::EmptyDbUrl);
     }
 
-    if !URL_SCHEMES
+    if PLANNED_URL_SCHEMES
         .iter()
         .any(|scheme| db_url.starts_with(scheme))
     {
-        return Err(ConnectionConfigError::UnsupportedDbUrlScheme(
+        return Err(ConnectionConfigError::PlannedDbUrlScheme(
+            db_url.to_string(),
+        ));
+    }
+
+    if !URL_SCHEMES.iter().any(|scheme| db_url.starts_with(scheme)) {
+        return Err(ConnectionConfigError::InvalidDbUrlScheme(
             db_url.to_string(),
         ));
     }
@@ -66,13 +74,21 @@ mod tests {
     #[rstest]
     #[case::simple("mysql://localhost:3306", Ok(()))]
     #[case::empty("", Err(ConnectionConfigError::EmptyDbUrl))]
-    #[case::unsupported_protocol_http(
-        "http://localhost:8080",
-        Err(ConnectionConfigError::UnsupportedDbUrlScheme("http://localhost:8080".to_string()))
+    #[case::planned_protocol_psql(
+        "postgres://localhost:5432",
+        Err(ConnectionConfigError::PlannedDbUrlScheme("postgres://localhost:5432".to_string()))
     )]
-    #[case::unsupported_protocol_no_protocol(
+    #[case::planned_protocol_sqlite(
+        "sqlite://./test.db",
+        Err(ConnectionConfigError::PlannedDbUrlScheme("sqlite://./test.db".to_string()))
+    )]
+    #[case::invalid_protocol_http(
+        "http://localhost:8080",
+        Err(ConnectionConfigError::InvalidDbUrlScheme("http://localhost:8080".to_string()))
+    )]
+    #[case::invalid_protocol_no_protocol(
         "localhost:3306",
-        Err(ConnectionConfigError::UnsupportedDbUrlScheme("localhost:3306".to_string()))
+        Err(ConnectionConfigError::InvalidDbUrlScheme("localhost:3306".to_string()))
     )]
     fn test_db_url_validate(
         #[case] db_url: &str,
@@ -91,10 +107,10 @@ mod tests {
 
     #[rstest]
     #[case::empty_db_url("", "user_name", ConnectionConfigError::EmptyDbUrl)]
-    #[case::unsupported_db_url_scheme(
+    #[case::invalid_db_url_scheme(
         "http://localhost:8080",
         "user_name",
-        ConnectionConfigError::UnsupportedDbUrlScheme("http://localhost:8080".to_string())
+        ConnectionConfigError::InvalidDbUrlScheme("http://localhost:8080".to_string())
     )]
     #[case::empty_user("mysql://localhost:3306", "", ConnectionConfigError::EmptyUser)]
     #[case::db_url_checked_before_user("", "", ConnectionConfigError::EmptyDbUrl)]
